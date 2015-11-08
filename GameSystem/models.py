@@ -18,3 +18,8 @@ class Game(models.Model):
 
 class Subject(models.Model):
     url = models.TextField(default="", blank=True)
+
+
+class AvailableGames(models.Model):
+    name = models.TextField(default="", blank=True)
+    subjects = models.ManyToManyField(Subject)
