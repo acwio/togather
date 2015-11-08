@@ -22,4 +22,6 @@ class Subject(models.Model):
 
 class AvailableGames(models.Model):
     name = models.TextField(default="", blank=True)
+    avatar = models.TextField(default="", blank=True)
+    game_url = models.TextField(default="", blank=True)
     subjects = models.ManyToManyField(Subject)

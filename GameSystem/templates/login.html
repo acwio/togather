@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+#login_form {
+    width: 150px;
+    margin: 0 auto;
+    margin-top: 15px;
+}
+</style>
+
+<div id="login_form">
+    <form method="POST" action="/login-register-user/">
+        {% csrf_token %}
+          Username:<br>
+          <input type="text" name="username">
+          <br>
+          Password:<br>
+          <input type="text" name="password">
+            <input type="submit" value="Register/Login">
+    </form>
+</div>
+
+{% endblock %}

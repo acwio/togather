@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+ #game-listing {
+    width: 80%;
+    min-height: 400px;
+    margin: 0 auto;
+    margin-top: 25px
+ }
+
+ .collection-item {
+     margin: 0 auto;
+     border: solid 1px;
+     display: inline-block;
+ }
+</style>
+
+<div id="game-listing">
+    <h2>Available Games:</h2>
+    <hr />
+    {% for game in available_games %}
+    <div class="collection-item">
+            <a href="{{ game.game_url }}"><img src="{{ STATIC_URL }}{{ game.avatar }}"></a>
+            <div class="translucent-box" style="top: 220px;">
+                <p></p>
+            </div>
+        </div>
+    </div>
+    {%  endfor %}
+</div>
+
+{% endblock %}
