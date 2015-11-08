@@ -10,5 +10,6 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'GameSystem.views.home', name='home'),
-    url(r'^login-register-user/', 'GameSystem.views.get_user', name='get_user')
+    url(r'^login-register-user/', 'GameSystem.views.get_user', name='get_user'),
+    url(r'^papyri/', 'GameSystem.views.load_papyri_session', name='load_papyri_session')
 )

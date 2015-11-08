@@ -2,6 +2,9 @@ from django.db import models
 
 
 class Round(models.Model):
+    '''
+    The fundamental building block of a game. Each game has 10(?) sessions.
+    '''
     result = models.IntegerField(default=-1)  # 0 == loss, 1 == win
     subject = models.IntegerField(default=-1)  # id of the subject (image)
     user1_tags = models.TextField(default="", blank=True)
@@ -10,6 +13,9 @@ class Round(models.Model):
 
 
 class Game(models.Model):
+    '''
+    Users play multiple rounds in a game and accumulate a total score.
+    '''
     user1 = models.IntegerField(default=-1)
     user2 = models.IntegerField(default=-1)
     rounds = models.ManyToManyField(Round)
@@ -17,11 +23,25 @@ class Game(models.Model):
 
 
 class Subject(models.Model):
+    '''
+    A model for holding image URLs for a specific available game.
+    '''
     url = models.TextField(default="", blank=True)
 
 
 class AvailableGames(models.Model):
+    '''
+    A list of games that are currently playable. For this course, only the Papyri Matcher game will be playable.
+    '''
     name = models.TextField(default="", blank=True)
     avatar = models.TextField(default="", blank=True)
     game_url = models.TextField(default="", blank=True)
     subjects = models.ManyToManyField(Subject)
+
+
+class PlayerQueue(models.Model):
+    '''
+    A queue for matching players in a game. Not yet sure what else we need in order to "connect" two people.
+    '''
+    user_id = models.IntegerField(default=-1)
+    api_key = models.TextField(default="", blank=True)
