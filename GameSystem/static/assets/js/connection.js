@@ -15,7 +15,7 @@ var peer = new Peer({
     }
 });
 
-// List of connected peers
+// There will only ever be one other connected peer.
 var connectedPeers = {};
 
 // When connection to the PeerServer is established.
@@ -42,44 +42,36 @@ function connect(c) {
 
 $(document).ready(function() {
 
-    // ********************************
-    // SHOULD THIS INITIAL CONNECTION BE
-    // ENCAPSULATED IN A FUNCTION?
-    // I AM JAVASCRIPT N00B!
-    // ********************************
 
     // Connect to a peer
     // Some logic will have to be here to determine
     // what peer to connect to. Will add this later.
-    var requestedPeer;
+    $('#connect').click(function() {
+        var requestedPeer;
 
-    if(!connectedPeers[requestedPeer]) {
+        if(!connectedPeers[requestedPeer]) {
 
-        // Create a connection
-        // We can add metadata as a second argument
-        // Where the second argument is a dict.
-        var c = peer.connect(requestedPeer);
+            // Create a connection
+            // We can add metadata as a second argument
+            // Where the second argument is a dict.
+            var c = peer.connect(requestedPeer);
 
-        // When connection to Peer Server is established.
-        c.on('open', function() {
-            connect(c);
-        });
+            // When connection to Peer Server is established.
+            c.on('open', function() {
+                connect(c);
+            });
 
-        // Error handling
-        c.on('error', function(err) {
-            // This is temp. We probably want to
-            // display something on the screen.
-            // We can do stuff for each type of
-            // error if needed.
-            alert(err);
-        });
-    }
-    connectedPeers[requestedPeer] = 1;
-
-    // ********************
-    // N00B FUNCTION END!!!
-    // ********************
-
+            // Error handling
+            c.on('error', function(err) {
+                // This is temp. We probably want to
+                // display something on the screen.
+                // We can do stuff for each type of
+                // error if needed.
+                alert(err);
+            });
+        }
+        connectedPeers[requestedPeer] = 1;
+    });
 
     // Close a connection.
     $('#close').click(function() {
@@ -97,15 +89,23 @@ $(document).ready(function() {
     });
 
     /**
-     * I actually don't know wtf this
-     * function is suppossed to do but
-     * apparently its needed in communicating
-     * with each active connection. I guess
-     * it takes as argument a function and then
-     * applies it to each active connection.
+     * Goes through each active peer and calls FN on its connections.
+     * @param fn
      */
     function eachActiveConnection(fn) {
-
+        var actives = $('.active');
+        var checkedIds = {};
+        actives.each(function() {
+            var peerId = $(this).attr('id');
+            if (!checkedIds[peerId]) {
+                var conns = peer.connections[peerId];
+                for (var i = 0, ii = conns.length; i < ii; i += 1) {
+                    var conn = conns[i];
+                    fn(conn, $(this));
+                }
+            }
+            checkedIds[peerId] = 1;
+        });
     }
 
 });
