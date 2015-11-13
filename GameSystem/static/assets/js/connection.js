@@ -43,6 +43,11 @@ function connect(c) {
 $(document).ready(function() {
 
 
+    function doNothing(e){
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
     // Connect to a peer
     // Some logic will have to be here to determine
     // what peer to connect to. Will add this later.
@@ -86,6 +91,16 @@ $(document).ready(function() {
         // This is where the c.send
         // comes into play. The message
         // can be whatever we want.
+        e.preventDefault();
+        //For each active connection, send the message.
+        var msg = $('#text').val();
+        eachActiveConnection(function(c, $c) {
+            c.send(msg);
+            $c.find('.messages').append('<div><span class="you">You: </span>' + msg
+                + '</div>');
+        });
+        $('text').val('');
+        $('text').focus();
     });
 
     /**
