@@ -47,12 +47,29 @@ def get_user(request):
     return HttpResponseRedirect('/')
 
 
-def load_papyri_session(request):
+def load_game_session(request, availablegame_id):
     '''
-    Used to connect two users into a session.
+    Should be called once two users have been connected into a game.
     Serves the game UI to the user.
     UI is automatically served with a loading modal. Connection of another user is handled by JavaScript.
     :param request:
     :return:
     '''
-    return render(request, 'papyri_game.html', {})
+
+    # get the available game with the id
+    game = AvailableGames.objects.get(id=availablegame_id)
+
+    # get pre-existing game with this user
+
+    # TODO:
+    # 1. Create a list of subjects for each user with some percentage of identity.
+    #   e.g.    user1: [4, 5, 3, 10, 15, 1, 9, 8, 2, 11]
+    #           user2: [3, 5, 4, 1, 9, 11, 2, 8, 10, 15]
+    # 2. Serve the subject id at the relevant index.
+
+    # TODO: (in the form submit view)
+    # 1. Increment the game's index
+    # 2. Save the tags.
+
+
+    return render(request, 'game_interface.html', {'game': game})

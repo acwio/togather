@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Round(models.Model):
+class RoundResponses(models.Model):
     '''
     The fundamental building block of a game. Each game has 10(?) sessions.
     '''
@@ -18,7 +18,9 @@ class Game(models.Model):
     '''
     user1 = models.IntegerField(default=-1)
     user2 = models.IntegerField(default=-1)
-    rounds = models.ManyToManyField(Round)
+    user1_subjects = models.TextField(default="", blank=True)
+    user2_subjects = models.TextField(default="", blank=True)
+    rounds = models.ManyToManyField(RoundResponses)
     score = models.IntegerField(default=-1)
 
 
@@ -27,6 +29,7 @@ class Subject(models.Model):
     A model for holding image URLs for a specific available game.
     '''
     url = models.TextField(default="", blank=True)
+    type = models.TextField(default="", blank=True)
 
 
 class AvailableGames(models.Model):
@@ -34,8 +37,8 @@ class AvailableGames(models.Model):
     A list of games that are currently playable. For this course, only the Papyri Matcher game will be playable.
     '''
     name = models.TextField(default="", blank=True)
+    game_type = models.TextField(default="", blank=True)
     avatar = models.TextField(default="", blank=True)
-    game_url = models.TextField(default="", blank=True)
     subjects = models.ManyToManyField(Subject)
 
 

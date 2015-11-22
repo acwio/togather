@@ -22,12 +22,11 @@
     <hr />
     {% for game in available_games %}
     <div class="collection-item">
-            <a href="{{ game.game_url }}"><img src="{{ STATIC_URL }}{{ game.avatar }}"></a>
+            <a href="{{ game.id }}"><img src="{{ STATIC_URL }}{{ game.avatar }}" style="height: 237px;     padding: 1px 1px 1px 1px;"></a>
             <div class="translucent-box" style="top: 220px;">
                 <p></p>
             </div>
         </div>
-    </div>
     {%  endfor %}
 </div>
 
