@@ -37,7 +37,7 @@ class Command(BaseCommand):
         # iterate over all the images in the static/assets/img/ directory,
         # create subjects for them, and add them to the papyri matcher available game.
         for audio_file in os.listdir(os.getcwd()+"/GameSystem/static/assets/audio"):
-            new_subj = Subject.objects.create(url="assets/img/"+str(audio_file), type="audio")
+            new_subj = Subject.objects.create(url="assets/audio/"+str(audio_file), type="audio")
             new_game.subjects.add(new_subj)
 
         # do one final save, just in case

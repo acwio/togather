@@ -43,10 +43,27 @@
         margin-top: 15px;
         width: 100%;
     }
+
+    .user-label {
+        padding: 4px 4px 4px 4px;
+        float: left;
+        border: 1px solid #428BCA;
+        background-color: #D9EDF7;
+        border-radius: 5px;
+        margin-right: 10px;
+        margin-top: 5px;
+        margin-left: 5px;
+    }
+
+    .user-label-span {
+        margin-left: 0;
+    }
+
+
 </style>
 
 <div id="papyri-game">
-    <h3>Round 1 of 10</h3>
+    <h3>Round {{ game.round_index }} of 10</h3>
     <hr/>
     <div id="wave"></div>
     <center>
@@ -101,14 +118,17 @@
 
         $(".label-input").keyup(function (e) {
             if (e.keyCode == 13) {
-                console.log("This should add the label.");
+                $(".label-container").append('<div class="user-label">'+$('.label-input').val()+'</div>');
+
+
+                // Add Peer.js code.
 
                 /* reset the input field */
                 $('.label-input').val('');
             }
         });
 
-        wavesurfer.load('/static/assets/audio/Abide_With_Me_015_sec_preview.mp3');
+        wavesurfer.load('/static/{{ subject.url }}');
     });
 </script>
 
