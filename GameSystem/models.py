@@ -20,6 +20,7 @@ class Game(models.Model):
     user2 = models.IntegerField(default=-1)
     user1_subjects = models.TextField(default="", blank=True)
     user2_subjects = models.TextField(default="", blank=True)
+    round_index = models.IntegerField(default=1)
     rounds = models.ManyToManyField(RoundResponses)
     score = models.IntegerField(default=-1)
 
