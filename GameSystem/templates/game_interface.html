@@ -60,14 +60,60 @@
     }
 
 
+    #audio-controls {
+        margin-top: 20px;
+    }
 </style>
+
+<div class = "modal fade" id = "myModal" tabindex = "-1" role = "dialog"
+   aria-labelledby = "myModalLabel" aria-hidden = "true">
+
+   <div class = "modal-dialog">
+      <div class = "modal-content">
+
+         <div class = "modal-header">
+            <h4 class = "modal-title" id = "myModalLabel">
+               TagATune: Tutorial
+            </h4>
+         </div>
+
+         <div class = "modal-body" style="text-align: justify;">
+            Welcome to <strong>TagATune</strong>! The goal of the game is to determine whether or not you and your game partner are
+             listening to the same audio clip. If you and your partner both guess correctly, you both get 10 points! However, if you guess incorrectly, you and your partner get no points.<br/>
+
+             You can communicate with your partner by supplying labels for the audio clip you're listening to. These
+             labels are shared with your partner.<br/>
+
+             <img src="/static/assets/img/label-example.png" style="width: 550px; margin-top: 20px; margin-bottom: 20px;"> <br/>
+
+             One both of you have given 5 labels for the audio clip, you will each be able to vote if you're listening
+             to the same audio clip. (Don't let this prevent you from supplying more than 5 labels!)
+             <br />
+
+             Good luck! <br />
+
+             <p style="float: right;">- The TagATune Team</p>
+
+         </div>
+
+         <div class = "modal-footer">
+            <button type = "button" class = "btn btn-default" data-dismiss = "modal">
+               Close
+            </button>
+         </div>
+
+      </div><!-- /.modal-content -->
+   </div><!-- /.modal-dialog -->
+
+</div><!-- /.modal -->
+
 
 <div id="papyri-game">
     <h3>Round {{ game.round_index }} of 10</h3>
     <hr/>
     <div id="wave"></div>
     <center>
-    <div class="btn-group" role="group">
+    <div id="audio-controls" class="btn-group" role="group">
         <button id="play-button" type="button" class="btn btn-default">
           <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
         </button>
@@ -98,7 +144,19 @@
 
     /* force the waiting dialog to appear */
     waitingDialog.show();
-    setTimeout(function () {waitingDialog.hide();}, 3000);
+    setTimeout(function () {
+        /* hide the waiting Dialog */
+        waitingDialog.hide();
+
+        /* have they seen the tutorial before? */
+        if (localStorage.getItem("infiniteScrollEnabled") === null) {
+            /* show the tutorial modal */
+            $('#myModal').modal({
+                keyboard: false
+            });
+        }
+
+    }, 3000);
 
     /*  once the document is ready, initialize the audio clip visualizer */
     $(document).ready(function() {
