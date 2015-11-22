@@ -37,6 +37,35 @@ peer.on('error', function(err) {
  * @param c
  */
 function connect(c) {
+    var chatbox = $('<div></div>').addClass('connection').addClass('active').attr('id', c.peer);
+    var header = $('<h1></h1>').html('Chat with <strong>' + c.peer + '</strong>');
+    var messages = $('<div><em>Peer connected.</em></div>').addClass('messages');
+    chatbox.append(header);
+    chatbox.append(messages);
+
+    // Select connection handler.
+    chatbox.on('click', function () {
+        if ($(this).attr('class').indexOf('active') === -1) {
+            $(this).addClass('active');
+        } else {
+            $(this).removeClass('active');
+        }
+    });
+    $('.filler').hide();
+    $('#connections').append(chatbox);
+    c.on('data', function (data) {
+        messages.append('<div><span class="peer">' + c.peer + '</span>: ' + data +
+            '</div>');
+    });
+    c.on('close', function () {
+        alert(c.peer + ' has left the chat.');
+        chatbox.remove();
+        if ($('.connection').length === 0) {
+            $('.filler').show();
+        }
+        delete connectedPeers[c.peer];
+    });
+    connectedPeers[c.peer] = 1;
 
 }
 
