@@ -3,10 +3,113 @@
 {% block content %}
 
 <style>
+    #papyri-game {
+        width: 80%;
+        margin: 0 auto;
+        padding-top: 50px;
+    }
+
+    #this-player-div {
+        float: left;
+        min-height: 200px;
+    }
+
+    #partner-player-div {
+        display: inline-block;
+        min-height: 250px;
+    }
+
+    #this-player-div, #partner-player-div {
+        width: 46%;
+        margin: 16px 16px 16px 16px;
+        padding: 15px 15px 15px 15px;
+        border: solid 1px gray;
+        border-radius: 25px;
+    }
+
+    .label-container {
+        width: 100%;
+        border: solid 1px gray;
+        height:100px;
+    }
+
+    .partner-label-container {
+        width: 100%;
+        border: solid 1px gray;
+        height:150px;
+    }
+
+    .label-input {
+        margin-top: 15px;
+        width: 100%;
+    }
 </style>
 
 <div id="papyri-game">
-    This should load an interface for data of type "{{ game.game_type }}".
+    <h3>Round 1 of 10</h3>
+    <hr/>
+    <div id="wave"></div>
+    <center>
+    <div class="btn-group" role="group">
+        <button id="play-button" type="button" class="btn btn-default">
+          <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
+        </button>
+
+        <button id="pause-button" type="button" class="btn btn-default">
+          <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>
+        </button>
+    </div>
+    </center>
+    <hr/>
+
+    <div id="this-player-div">
+        <h4>Your Labels:</h4>
+        <hr/>
+        <div class="label-container"></div>
+        <input class="label-input" type="text" placeholder="Suggestion: Genre, Instrument, Volume, etc.">
+    </div>
+    <div id="partner-player-div">
+        <h4>Your Partner's Labels:</h4>
+        <hr/>
+        <div class="partner-label-container"></div>
+    </div>
 </div>
+
+<script>
+    /*  create the wavesurfer */
+    var wavesurfer = Object.create(WaveSurfer);
+
+    /* force the waiting dialog to appear */
+    waitingDialog.show();
+    setTimeout(function () {waitingDialog.hide();}, 3000);
+
+    /*  once the document is ready, initialize the audio clip visualizer */
+    $(document).ready(function() {
+        wavesurfer.init({
+            container: '#wave',
+            waveColor: 'violet',
+            progressColor: 'purple'
+        });
+
+        $("#play-button").on('click', function () {
+            wavesurfer.play();
+        });
+
+        $("#pause-button").on('click', function () {
+            wavesurfer.pause();
+        });
+
+        $(".label-input").keyup(function (e) {
+            if (e.keyCode == 13) {
+                console.log("This should add the label.");
+
+                /* reset the input field */
+                $('.label-input').val('');
+            }
+        });
+
+        wavesurfer.load('/static/assets/audio/Abide_With_Me_015_sec_preview.mp3');
+    });
+</script>
 
 {% endblock %}
