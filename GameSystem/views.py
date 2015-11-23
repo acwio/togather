@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect,HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from GameSystem.models import *
@@ -178,3 +178,12 @@ def load_game_session(request, gametype_id):
     # 2. Save the tags.
 
     return render(request, 'game_interface.html', {'game_type': game_type, 'game': game, 'peer_id': peer_id ,'subject': subject})
+
+
+def add_label(request):
+    new_label = request.POST['label']
+    game_id = request.POST['game_id']
+    user_id = request.POST['user_id']
+
+    print new_label + " " + game_id + " " + user_id
+    return HttpResponse(200)
