@@ -69,7 +69,7 @@ def load_game_session(request, gametype_id):
     game_type = AvailableGames.objects.get(id=gametype_id)
 
     # get pre-existing game with this user
-    games = Game.objects.filter(Q(user1=request.user.id) | Q(user2=request.user.id))
+    games = Game.objects.filter(Q(user1=request.user.id, complete=0) | Q(user2=request.user.id, complete=0))
 
     # create the game if necessary
     if len(games) == 0:   # User is not currently in a game
@@ -143,7 +143,7 @@ def load_game_session(request, gametype_id):
             PlayerQueue.objects.get(id=existing_player.id).delete()
 
             # get the game the existing player belongs to
-            game = Game.objects.filter(Q(user1=existing_player.user_id) | Q(user2=existing_player.user_id))[0]
+            game = Game.objects.filter(Q(user1=existing_player.user_id, complete=0) | Q(user2=existing_player.user_id, complete=0))[0]
 
             # add the requesting user to the game as player 2
             game.user2 = request.user.id
@@ -179,11 +179,12 @@ def load_game_session(request, gametype_id):
         game.rounds.add(round)
     else:
         # get the round
-        print 'here'
-        print round_index
-        round = game.rounds.all()[int(round_index)-1]
-        print 'after round'
-        print round
+        round = game.rounds.all()[int(game.round_index)-1]
+
+    # is this the final subject for the round?
+    final_round = 0
+    if int(game.round_index) == 10:
+        final_round = 1
 
     # determine if request.user is user1 or user2
     peer_id =''
@@ -206,7 +207,7 @@ def load_game_session(request, gametype_id):
     # 2. Save the tags.
 
     return render(request, 'game_interface.html', {'game_type': game_type, 'game': game, 'my_labels': my_labels, 'peer_labels' : peer_labels,
-                                                   'peer_id': peer_id ,'subject': subject})
+                                                   'peer_id': peer_id,'subject': subject, 'subject_id': subject_id, 'final_round': final_round})
 
 
 def add_label(request):
@@ -215,6 +216,7 @@ def add_label(request):
     game_id = request.POST['game_id']
     user_id = request.POST['user_id']
     round_index = request.POST['round']
+    subject_id = int(request.POST['subject_id'])
 
     # get the game by id
     game = Game.objects.get(id=game_id)
@@ -240,11 +242,19 @@ def add_label(request):
 
         # save the label to the correct set of labels
         if int(user_id) == int(game.user1):
+            # set the user1 subject if necessary
+            round.user1_subject = subject_id
+
+            # add the label
             if round.user1_tags == '':
                 round.user1_tags = new_label
             else:
                 round.user1_tags = round.user1_tags+","+str(new_label)
         elif int(user_id) == int(game.user2):
+            # set the user1 subject if necessary
+            round.user2_subject = subject_id
+
+            # add the label
             if round.user2_tags == '':
                 round.user2_tags = str(new_label)
             else:
@@ -283,9 +293,66 @@ def add_vote(request):
 
     # return a variable for round completeness
     round_complete = 0
-    if round.user2_vote != -1 and round.user1_vote != -1:
+    round_win = 0
+    if int(round.user2_vote) != -1 and int(round.user1_vote) != -1:
+        # mark the round as complete
         round_complete = 1
-        #game.round_index = F('round_index') +1
-        #game.save()
+
+        # were the two users served the same subject?
+        correct_result = 0
+        if int(round.user1_subject) == int(round.user2_subject):
+            correct_result = 1
+
+        # were the two users right?
+        if int(round.user2_vote) == correct_result and int(round.user1_vote) == correct_result:
+            # mark the round as won
+            round_win = 1
+            round.result = 1
+        else:
+            round.result = 0
+        round.save()
+
+        # increment the round and save the game
+        game.round_index = F('round_index') + 1
+        game.score = F('score') + 10
+
+        # check if game is complete
+        if int(game.round_index) == 11:
+            game.complete = 1
+
+        game.save()
 
     return HttpResponse(round_complete)
+
+
+def game_summary(request, game_id):
+    # get the game by ID
+    game = Game.objects.get(id=game_id)
+
+    # get the users' usernames
+    user1 = User.objects.get(id=game.user1)
+    user2 = User.objects.get(id=game.user2)
+
+    return render(request, 'summary.html', {'game': game, 'user1': user1, 'user2': user2})
+
+
+def get_peer_id(request):
+    # extract the game_id
+    game_id = request.GET['game_id']
+    user_id = request.GET['user_id']
+    print game_id
+    print user_id
+
+    # get the game by id
+    game = Game.objects.get(id=game_id)
+
+    data = -1
+    # get the partner's id
+    if int(user_id) == game.user1:
+        data = game.user2
+    elif int(user_id) == game.user2:
+        data = game.user1
+
+    peer_id = "togather"+str(data)
+    print peer_id
+    return HttpResponse(peer_id)

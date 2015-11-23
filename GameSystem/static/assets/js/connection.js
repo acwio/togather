@@ -10,11 +10,13 @@ $(document).ready(function() {
     /* setup default variables for the voting scheme */
     var peer_vote = -1;
     var my_vote = -1;
+    var correct_answer = -1;
+    var subjectCommunicated = false;
 
     /*  setup the Peer object */
     var peer = new Peer($("#my-id").val(), {
         // API Key -- sign up for one with PeerJS
-        key: 'ngb8qk19ri3eg66r',//key: 'x7fwx2kavpy6tj4i',
+        key: 'bkn1mlwipegbvs4i',//key: 'x7fwx2kavpy6tj4i',
         // Debug level
         debug: 3,
         // Logging function
@@ -37,8 +39,6 @@ $(document).ready(function() {
         if($('.partner-label-container').children().length > 4 && $('.label-container').children().length > 4){
             $("#voting-controls").show();
         }
-
-        // We can print some connection successful message or whatever.
     });
 
     /**
@@ -70,17 +70,54 @@ $(document).ready(function() {
             });
         }
 
+        /* send the subject_id to the game partner */
+        eachActiveConnection(function(c, $c) {
+            console.log("Sending subject id ...");
+            c.send("subject:"+$("#round").val()+":"+$("#subject_id").val());
+        });
+
         /* define how data is handled when received */
         c.on('data', function (data) {
-            if(data.indexOf("vote") == -1) {
+            console.log("data recvd: "+data);
+            if(data.indexOf("vote") == -1 && data.indexOf("subject") == -1) {
                 $(".partner-label-container").append('<div class="user-label">' + data + '</div>');
 
                 /* can we show the voting buttons? */
                 if ($('.partner-label-container').children().length > 4 && $('.label-container').children().length > 4) {
                     $("#voting-controls").show();
                 }
+            } else if (data.indexOf("vote") == -1){ /* subject_id is being recieved */
+
+                var round_index = data.split(":")[1];
+                var peer_subject = data.split(":")[2];
+
+                if(round_index == $("#round").val()) {  /* verify we recieved data from the right round */
+
+                    if (peer_subject == $("#subject_id").val()) {
+                        console.log("My Subject: " + $("#subject_id").val());
+                        console.log("My Peer's Subject: " + peer_subject);
+                        correct_answer = 1;
+                    } else {
+                        correct_answer = 0;
+                    }
+
+                    /* send the subject_id to the game partner */
+                    if (!subjectCommunicated) {
+                        eachActiveConnection(function (c, $c) {
+                            c.send("subject:" + $("#round").val() + ":" + $("#subject_id").val());
+                        });
+
+                        subjectCommunicated = true;
+                    } else {
+                        subjectCommunicated = false;
+                    }
+                }
+
+
             } else{
                 peer_vote = data.split(":")[1];
+                console.log("Peer_Vote: "+peer_vote);
+                console.log("My Vote: "+my_vote);
 
                 if(my_vote != -1) {
                     /* hide the dialog modal */
@@ -92,10 +129,10 @@ $(document).ready(function() {
                         keyboard: false
                     });
 
-                    if(peer_vote == my_vote){
-                        $("#round-summary-body").append("You both guessed the same.")
+                    if(peer_vote == correct_answer && my_vote == correct_answer){
+                        $("#round-summary-body").append("You both guessed correctly! You've earned <strong>10 points</strong>!")
                     } else{
-                        $("#round-summary-body").append("You both guessed differently.")
+                        $("#round-summary-body").append("One (or both) of you guessed incorrectly. Don't worry! You'll get it next time.")
                     }
                 }
             }
@@ -103,8 +140,11 @@ $(document).ready(function() {
 
         /* define the behavior for when a user leaves randomly*/
         c.on('close', function () {
-            /* show the modal */
-            waitingDialog.show();
+
+            if(!$("#summary-modal").is(":visible")) {
+                /* show the modal */
+                waitingDialog.show();
+            }
 
             /* delete the connection */
             delete connectedPeers[c.peer];
@@ -113,30 +153,7 @@ $(document).ready(function() {
 
     }
 
-    /* connect to the peer if we haven't already */
-    var requestedPeer = $("#peer-id").val();
-    if(!connectedPeers[requestedPeer]) {
-        // Create a connection
-        console.log("Attempting to connect to: "+ requestedPeer);
-        var c = peer.connect(requestedPeer);
-
-        // When connection to Peer Server is established.
-        c.on('open', function() {
-            connect(c);
-        });
-
-        // Error handling
-        c.on('error', function(err) {
-            // This is temp. We probably want to
-            // display something on the screen.
-            // We can do stuff for each type of
-            // error if needed.
-            alert(err);
-        });
-    }
-    connectedPeers[requestedPeer] = 1;
-
-    /**
+     /**
      * Define Django's CSRF token-generating function.
      * @param name
      * @returns {*}
@@ -157,6 +174,78 @@ $(document).ready(function() {
         return cookieValue;
     }
     var csrftoken = getCookie('csrftoken');
+
+
+
+    /**
+     * Define function for connecting to a peer.
+     */
+    var requestedPeer;
+    function connectToPeer() {
+        requestedPeer = $("#peer-id").val();
+        if (!connectedPeers[requestedPeer]) {
+            // Create a connection
+            console.log("Attempting to connect to: " + requestedPeer);
+            var c = peer.connect(requestedPeer);
+
+            // When connection to Peer Server is established.
+            c.on('open', function () {
+                connect(c);
+            });
+
+            // Error handling
+            c.on('error', function (err) {
+                // This is temp. We probably want to
+                // display something on the screen.
+                // We can do stuff for each type of
+                // error if needed.
+                alert(err);
+            });
+        }
+        connectedPeers[requestedPeer] = 1;
+    }
+
+    var getPeerIDFromServerAndConnect = function() {
+        /* make the call */
+        $.ajax({
+            url : '/get/peerid/',
+            type : 'GET',
+            data : {
+                'csrfmiddlewaretoken': csrftoken,
+                'game_id'   : $("#game_id").val(),
+                'user_id'   : $("#user_id").val()
+            },
+            success : function(data) {
+                console.log("Response:");
+                console.log(data);
+                if(data === "togather-1"){
+                    /* after 3 seconds, make the call again */
+                    setTimeout(getPeerIDFromServerAndConnect, 3000);
+
+                } else {
+                    /* update the element's data */
+                    $("#peer-id").val(data);
+
+                    console.log("Updated peer-id to: "+$("#peer-id").val());
+                    /* connect to the peer */
+                    connectToPeer();
+                }
+
+            },
+            error : function(request,error){console.log(request); console.log(error);}
+        });
+
+    };
+
+    /* do we know the peer-id yet? */
+    if($("#peer-id").val() == "togather-1"){
+        console.log("Trying to get peer-id from server")
+        /* make a call to the server for the id */
+        getPeerIDFromServerAndConnect();
+    }
+    else{   /* we already know the peer ID, so just connect */
+        connectToPeer();
+    }
 
     /**
      * Define an event-handler for same/diff voting buttons.
@@ -182,18 +271,18 @@ $(document).ready(function() {
             },
             dataType:'json',
             success : function(data) {
+                /* send to the game partner */
+                eachActiveConnection(function(c, $c) {
+                    c.send("vote:"+vote);
+                });
+
                 if(data == 0){
                     /* show the waiting dialog */
                     waitingForVoteDialog.show();
                     my_vote = vote;
 
-                    /* send the vote to the peer */
-                    /* send to the game partner */
-                    eachActiveConnection(function(c, $c) {
-                        c.send("vote:"+vote);
-                    });
-
                 } else {
+
                     my_vote = vote;
                     $('#summary-modal').modal({
                         backdrop: 'static',
@@ -202,10 +291,11 @@ $(document).ready(function() {
 
                     console.log("Peer_vote: "+peer_vote);
                     console.log("My vote: "+my_vote);
-                    if(peer_vote == my_vote){
-                        $("#round-summary-body").append("You both guessed the same.")
+                    console.log("correct answer: "+correct_answer);
+                    if(peer_vote == correct_answer && my_vote == correct_answer){
+                        $("#round-summary-body").append("You both guessed correctly! You've earned <strong>10 points</strong>!")
                     } else{
-                        $("#round-summary-body").append("You both guessed differently.")
+                        $("#round-summary-body").append("One (or both) of you guessed incorrectly. Don't worry! You'll get it next time.")
                     }
 
                 }
@@ -232,10 +322,11 @@ $(document).ready(function() {
                 type : 'POST',
                 data : {
                     'csrfmiddlewaretoken': csrftoken,
-                    'game_id' : $("#game_id").val(),
-                    'user_id' : $("#user_id").val(),
-                    'round'   : $("#round").val(),
-                    'label'   : label
+                    'game_id'   : $("#game_id").val(),
+                    'user_id'   : $("#user_id").val(),
+                    'round'     : $("#round").val(),
+                    'subject_id': $("#subject_id").val(),
+                    'label'     : label
                 },
                 dataType:'json',
                 success : function(data) {},

@@ -124,9 +124,15 @@
          </div>
 
          <div class = "modal-footer">
+             {% if final_round == 0 %}
             <a href="/{{ game_type.id }}/"><button type = "button" class = "btn btn-default">
                Next Round
             </button>
+              {% elif final_round == 1 %}
+                <a href="/summary/{{ game.id }}/"><button type = "button" class = "btn btn-default">
+               Game Summary
+            </button>
+              {% endif %}
                 </a>
          </div>
 
@@ -140,11 +146,13 @@
 <input id="peer-id" value="{{ peer_id }}" style="display: none;">
 <input id="game_id" value="{{ game.id }}" style="display: none;">
 <input id="user_id" value="{{ user.id }}" style="display: none;">
+<input id="subject_id" value="{{ subject_id }}" style="display: none;">
 <input id="round" value="{{ game.round_index }}" style="display: none;">
 
 
 <div id="papyri-game">
-    <h3>Round {{ game.round_index }} of 10</h3>
+    <div style="float: left;width: 80%;"><h3>Round {{ game.round_index }} of 10</h3></div>
+    <div style="display: inline-block;"><h3>Score: {{ game.score }}</h3></div>
     <hr/>
     <div id="wave"></div>
     <center>
@@ -205,20 +213,6 @@
 
     /* force the waiting dialog to appear */
     waitingDialog.show();
-{#    setTimeout(function () {#}
-{#        /* hide the waiting Dialog */#}
-{#        waitingDialog.hide();#}
-{##}
-{#        /* have they seen the tutorial before? */#}
-{#        if (localStorage.getItem("Togather.tutorial") === null) {#}
-{#            /* show the tutorial modal */#}
-{#            $('#myModal').modal({#}
-{#                backdrop: 'static',#}
-{#                keyboard: false#}
-{#            });#}
-{#        }#}
-{##}
-{#    }, 3000);#}
 
     /*  once the document is ready, initialize the audio clip visualizer */
     $(document).ready(function() {

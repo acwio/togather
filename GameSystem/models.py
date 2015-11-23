@@ -26,6 +26,7 @@ class Game(models.Model):
     round_index = models.IntegerField(default=1)
     rounds = models.ManyToManyField(RoundResponses)
     score = models.IntegerField(default=0)
+    complete = models.IntegerField(default=0)
 
 
 class Subject(models.Model):
