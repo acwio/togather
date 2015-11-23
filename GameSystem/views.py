@@ -283,10 +283,10 @@ def add_vote(request):
     # save the label to the correct set of labels
     if int(user_id) == int(game.user1):
         if round.user1_vote == -1:
-            round.user1_vote = vote
+            round.user1_vote = int(vote)
     elif int(user_id) == int(game.user2):
         if round.user2_vote == -1:
-            round.user2_vote = vote
+            round.user2_vote = int(vote)
 
     # save the round
     round.save()
@@ -317,7 +317,7 @@ def add_vote(request):
         game.score = F('score') + 10
 
         # check if game is complete
-        if int(game.round_index) == 11:
+        if game.round_index == 11:
             game.complete = 1
 
         game.save()

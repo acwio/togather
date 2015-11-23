@@ -5,7 +5,7 @@
         this file defines the specification for communication between two players in a game.
         it also defines event-handlers for UI elements (e.g. voting buttons)
  */
-
+var connectedPeers;
 $(document).ready(function() {
     /* setup default variables for the voting scheme */
     var peer_vote = -1;
@@ -27,17 +27,26 @@ $(document).ready(function() {
     });
 
     /* setup the JavaScript Object of curren connections */
-    var connectedPeers = {};
+    connectedPeers = {};
 
     /**
      * Define an event-handler for whenever the Peer object is ready to communicate.
      */
     peer.on('open', function(id){
-        console.log("PeerID: "+peer.id);
+        console.log("My ID: "+peer.id);
 
         /* can we show the voting buttons? */
         if($('.partner-label-container').children().length > 4 && $('.label-container').children().length > 4){
             $("#voting-controls").show();
+        }
+
+        /* do we know the peer-id yet? */
+        if($("#peer-id").val() === "togather-1"){
+            /* make a call to the server for the id */
+            getPeerIDFromServerAndConnect();
+        }
+        else{   /* we already know the peer ID, so just connect */
+            connectToPeer();
         }
     });
 
@@ -76,17 +85,22 @@ $(document).ready(function() {
             c.send("subject:"+$("#round").val()+":"+$("#subject_id").val());
         });
 
+        var labels = [];
         /* define how data is handled when received */
         c.on('data', function (data) {
             console.log("data recvd: "+data);
-            if(data.indexOf("vote") == -1 && data.indexOf("subject") == -1) {
-                $(".partner-label-container").append('<div class="user-label">' + data + '</div>');
+            if(data.indexOf("vote:") == -1 && data.indexOf("subject:") == -1) {
+                /* check that the label hasn't been given already */
+                if(labels.indexOf(data) == -1) {
+                    $(".partner-label-container").append('<div class="user-label">' + data + '</div>');
+                    labels.push(data);
+                }
 
                 /* can we show the voting buttons? */
                 if ($('.partner-label-container').children().length > 4 && $('.label-container').children().length > 4) {
                     $("#voting-controls").show();
                 }
-            } else if (data.indexOf("vote") == -1){ /* subject_id is being recieved */
+            } else if (data.indexOf("vote:") == -1){ /* subject_id is being recieved */
 
                 var round_index = data.split(":")[1];
                 var peer_subject = data.split(":")[2];
@@ -183,6 +197,7 @@ $(document).ready(function() {
     var requestedPeer;
     function connectToPeer() {
         requestedPeer = $("#peer-id").val();
+        console.log("Connecting to "+requestedPeer);
         if (!connectedPeers[requestedPeer]) {
             // Create a connection
             console.log("Attempting to connect to: " + requestedPeer);
@@ -206,6 +221,8 @@ $(document).ready(function() {
     }
 
     var getPeerIDFromServerAndConnect = function() {
+        console.log("Trying to get peer-id from server");
+
         /* make the call */
         $.ajax({
             url : '/get/peerid/',
@@ -219,6 +236,7 @@ $(document).ready(function() {
                 console.log("Response:");
                 console.log(data);
                 if(data === "togather-1"){
+                    console.log("CONNECTION ERROR: Attempting to get PeerID from server ...");
                     /* after 3 seconds, make the call again */
                     setTimeout(getPeerIDFromServerAndConnect, 3000);
 
@@ -236,16 +254,6 @@ $(document).ready(function() {
         });
 
     };
-
-    /* do we know the peer-id yet? */
-    if($("#peer-id").val() == "togather-1"){
-        console.log("Trying to get peer-id from server")
-        /* make a call to the server for the id */
-        getPeerIDFromServerAndConnect();
-    }
-    else{   /* we already know the peer ID, so just connect */
-        connectToPeer();
-    }
 
     /**
      * Define an event-handler for same/diff voting buttons.
@@ -308,7 +316,7 @@ $(document).ready(function() {
     /**
      * Define an event-handler for the "Enter" key when giving a label.
      */
-    $(".label-input").keyup(function(e) {
+    $("#label-supplier").keyup(function(e) {
         /* verify enter key */
         if (e.keyCode == 13) {
             var label = $('.label-input').val();
@@ -335,6 +343,7 @@ $(document).ready(function() {
 
             /* send to the game partner */
             eachActiveConnection(function(c, $c) {
+                console.log(c);
                 c.send(label);
             });
 
@@ -358,6 +367,7 @@ $(document).ready(function() {
     function eachActiveConnection(fn) {
         var checkedIds = {};
             var peerId = $("#peer-id").val();
+            if(peerId === "togather-1"){return;}
             if (!checkedIds[peerId]) {
                 var conns = peer.connections[peerId];
                 for (var i = 0, ii = conns.length; i < ii; i += 1) {
