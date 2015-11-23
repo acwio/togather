@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect,HttpResponse
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from GameSystem.models import *
 from django.db.models import Q
 import random
@@ -22,6 +22,13 @@ def home(request):
         return render(request, 'lobby.html', {'available_games': games})
     else:
         return render(request, 'login.html', {})
+
+
+def user_logout(request):
+    logout(request)
+
+    # redirect to the homepage
+    return HttpResponseRedirect("/")
 
 
 def get_user(request):
