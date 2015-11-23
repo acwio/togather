@@ -30,6 +30,7 @@ class Subject(models.Model):
     A model for holding image URLs for a specific available game.
     '''
     url = models.TextField(default="", blank=True)
+    explicit_id = models.IntegerField(default=-1)
     type = models.TextField(default="", blank=True)
 
 

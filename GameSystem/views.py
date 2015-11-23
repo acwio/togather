@@ -125,14 +125,15 @@ def load_game_session(request, gametype_id):
             new_player.save()
 
             # Serve the first subject to the user
-            subject_id = int(user1.split(",")[0])+195
-            subject = Subject.objects.get(id=subject_id)
+            subject_id = int(user1.split(",")[0])
+            
+            subject = Subject.objects.get(explicit_id=subject_id)
 
 
         else: # Player Queue isn't empty; Find the game with the player in the queue and add this user to the game.
             # get the first player in the queue
             existing_player = pq[0]
-            PlayerQueue.objects.delete(id=existing_player.id)
+            PlayerQueue.objects.get(id=existing_player.id).delete()
 
             # get the game the existing player belongs to
             game = Game.objects.filter(Q(user1=existing_player.user_id) | Q(user2=existing_player.user_id))[0]
@@ -142,8 +143,8 @@ def load_game_session(request, gametype_id):
             game.save()
 
             # serve the first subject in the user2_subjects to the user
-            subject_id = int(game.user2_subjects.split(",")[0])+195
-            subject = Subject.objects.get(id=subject_id)
+            subject_id = int(game.user2_subjects.split(",")[0])
+            subject = Subject.objects.get(explicit_id=subject_id)
 
 
     elif len(games) == 1:   # User is currently in a game.
@@ -160,8 +161,8 @@ def load_game_session(request, gametype_id):
 
         # get the subject at the round index.
         round_index = int(game.round_index)
-        subject_id = int(subject_set.split(",")[round_index])+195
-        subject = Subject.objects.get(id=subject_id)
+        subject_id = int(subject_set.split(",")[round_index])
+        subject = Subject.objects.get(explicit_id=subject_id)
 
     # determine if request.user is user1 or user2
     peer_id =''

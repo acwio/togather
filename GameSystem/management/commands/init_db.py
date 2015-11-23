@@ -18,9 +18,9 @@ class Command(BaseCommand):
 
         # iterate over all the images in the static/assets/img/ directory,
         # create subjects for them, and add them to the papyri matcher available game.
-        for image_file in os.listdir(os.getcwd()+"/GameSystem/static/assets/img"):
-            new_subj = Subject.objects.create(url="assets/img/"+str(image_file), type="image")
-            new_game.subjects.add(new_subj)
+        # for image_file in os.listdir(os.getcwd()+"/GameSystem/static/assets/img"):
+        #     new_subj = Subject.objects.create(url="assets/img/"+str(image_file), type="image")
+        #     new_game.subjects.add(new_subj)
 
         # do one final save, just in case
         new_game.save()
@@ -35,10 +35,12 @@ class Command(BaseCommand):
         new_game.save()
 
         # iterate over all the images in the static/assets/img/ directory,
+        i = 1
         # create subjects for them, and add them to the papyri matcher available game.
         for audio_file in os.listdir(os.getcwd()+"/GameSystem/static/assets/audio"):
-            new_subj = Subject.objects.create(url="assets/audio/"+str(audio_file), type="audio")
+            new_subj = Subject.objects.create(url="assets/audio/"+str(audio_file), type="audio", explicit_id=i)
             new_game.subjects.add(new_subj)
+            i+=1
 
         # do one final save, just in case
         new_game.save()
