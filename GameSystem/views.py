@@ -161,15 +161,36 @@ def load_game_session(request, gametype_id):
 
         # get the subject at the round index.
         round_index = int(game.round_index)
-        subject_id = int(subject_set.split(",")[round_index])
+        subject_id = int(subject_set.split(",")[int(round_index)-1])
         subject = Subject.objects.get(explicit_id=subject_id)
+
+    # get the round
+    round = ''
+    if int(game.rounds.count()) < int(round_index):
+        # create the game round
+        round = RoundResponses.objects.create()
+        game.rounds.add(round)
+    else:
+        # get the round
+        print 'here'
+        print round_index
+        round = game.rounds.all()[int(round_index)-1]
+        print 'after round'
+        print round
 
     # determine if request.user is user1 or user2
     peer_id =''
+    my_labels = []
+    peer_labels = []
     if int(game.user1) == int(request.user.id):
         peer_id = 'togather'+str(game.user2)
+        my_labels = str(round.user1_tags).split(',')
+        peer_labels = str(round.user2_tags).split(',')
+
     elif int(game.user2) == int(request.user.id):
         peer_id = 'togather'+str(game.user1)
+        my_labels = str(round.user2_tags).split(',')
+        peer_labels = str(round.user1_tags).split(',')
 
     print peer_id
 
@@ -177,13 +198,53 @@ def load_game_session(request, gametype_id):
     # 1. Increment the game's index
     # 2. Save the tags.
 
-    return render(request, 'game_interface.html', {'game_type': game_type, 'game': game, 'peer_id': peer_id ,'subject': subject})
+    return render(request, 'game_interface.html', {'game_type': game_type, 'game': game, 'my_labels': my_labels, 'peer_labels' : peer_labels,
+                                                   'peer_id': peer_id ,'subject': subject})
 
 
 def add_label(request):
+    # extract the values
     new_label = request.POST['label']
     game_id = request.POST['game_id']
     user_id = request.POST['user_id']
+    round_index = request.POST['round']
+
+    # get the game by id
+    game = Game.objects.get(id=game_id)
+
+    # check that the round is in the game already
+    if int(game.rounds.count()) < int(round_index):
+        # create the game round
+        round = RoundResponses.objects.create()
+        game.rounds.add(round)
+
+        # save the label to the correct set of labels
+        if int(user_id) == int(game.user1):
+            round.user1_tags = str(new_label)
+        elif int(user_id) == int(game.user2):
+            round.user2_tags = str(new_label)
+
+        # save the round
+        round.save()
+
+    else:
+        # get the round at the relevant index
+        round = game.rounds.all()[int(round_index)-1]
+
+        # save the label to the correct set of labels
+        if int(user_id) == int(game.user1):
+            if round.user1_tags == '':
+                round.user1_tags = new_label
+            else:
+                round.user1_tags = round.user1_tags+","+str(new_label)
+        elif int(user_id) == int(game.user2):
+            if round.user2_tags == '':
+                round.user2_tags = str(new_label)
+            else:
+                round.user2_tags = round.user2_tags+","+str(new_label)
+
+        # save the round
+        round.save()
 
     print new_label + " " + game_id + " " + user_id
     return HttpResponse(200)

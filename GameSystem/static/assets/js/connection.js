@@ -4,6 +4,8 @@
 
 // Peer Object
 $(document).ready(function() {
+
+
     console.log("Specific PeerID: "+$("#my-id").val());
 var peer = new Peer($("#my-id").val(), {
     // API Key -- sign up for one with PeerJS
@@ -23,6 +25,11 @@ var connectedPeers = {};
 // When connection to the PeerServer is established.
 peer.on('open', function(id){
     console.log("PeerID: "+peer.id);
+
+    /* can we show the voting buttons? */
+    if($('.partner-label-container').children().length > 4 && $('.label-container').children().length > 4){
+        $("#voting-controls").show();
+    }
 
     // We can print some connection successful message or whatever.
 });
@@ -56,6 +63,11 @@ function connect(c) {
     /* define how data is handled when received */
     c.on('data', function (data) {
         $(".partner-label-container").append('<div class="user-label">'+data +'</div>');
+
+        /* can we show the voting buttons? */
+            if($('.partner-label-container').children().length > 4 && $('.label-container').children().length > 4){
+                $("#voting-controls").show();
+            }
     });
 
     /* define the behavior for when a user leaves randomly*/
@@ -114,6 +126,23 @@ function connect(c) {
         });
     });
 
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
     // Send a label.
     $(".label-input").keyup(function(e) {
         /* verify enter key */
@@ -122,6 +151,22 @@ function connect(c) {
 
             /* restrict null / invalid input */
             if(label == "" || label == null) return;
+
+            /* send the new label to the server */
+            $.ajax({
+                url : '/game/add_label/',
+                type : 'POST',
+                data : {
+                    'csrfmiddlewaretoken': csrftoken,
+                    'game_id' : $("#game_id").val(),
+                    'user_id' : $("#user_id").val(),
+                    'round'   : $("#round").val(),
+                    'label'   : label
+                },
+                dataType:'json',
+                success : function(data) {},
+                error : function(request,error){console.log(request);}
+            });
 
             /* send to the game partner */
             eachActiveConnection(function(c, $c) {
@@ -133,6 +178,11 @@ function connect(c) {
 
             /* reset the input field */
             $('.label-input').val('');
+
+            /* can we show the voting buttons? */
+            if($('.partner-label-container').children().length > 4 && $('.label-container').children().length > 4){
+                $("#voting-controls").show();
+            }
         }
     });
 

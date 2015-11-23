@@ -109,6 +109,11 @@
 
 <input id="my-id" value="togather{{ user.id }}" style="display: none;">
 <input id="peer-id" value="{{ peer_id }}" style="display: none;">
+<input id="game_id" value="{{ game.id }}" style="display: none;">
+<input id="user_id" value="{{ user.id }}" style="display: none;">
+<input id="round" value="{{ game.round_index }}" style="display: none;">
+
+
 <div id="papyri-game">
     <h3>Round {{ game.round_index }} of 10</h3>
     <hr/>
@@ -127,12 +132,12 @@
     <hr/>
 
     <center>
-    <div id="vote-controls" class="btn-group" role="group">
-        <button id="same-button" type="button" class="btn btn-default ">
+    <div id="voting-controls" class="btn-group" role="group" style="display: none;">
+        <button id="same-button" type="button" class="btn btn-default btn-success">
           Same Audio Clip
         </button>
 
-        <button id="diff-button" type="button" class="btn btn-default">
+        <button id="diff-button" type="button" class="btn btn-default btn-danger">
           Different Audio Clip
         </button>
     </div>
@@ -143,13 +148,25 @@
     <div id="this-player-div">
         <h4>Your Labels:</h4>
         <hr/>
-        <div class="label-container"></div>
+        <div class="label-container">
+            {% for label in my_labels %}
+                {% if label != ''%}
+            <div class="user-label">{{ label }}</div>
+                {% endif %}
+            {% endfor %}
+        </div>
         <input class="label-input" type="text" placeholder="Suggestion: Genre, Instrument, Volume, etc.">
     </div>
     <div id="partner-player-div">
         <h4>Your Partner's Labels:</h4>
         <hr/>
-        <div class="partner-label-container"></div>
+        <div class="partner-label-container">
+            {% for label in peer_labels %}
+                {% if label != ''%}
+                <div class="user-label">{{ label }}</div>
+                {% endif %}
+            {% endfor %}
+        </div>
     </div>
 </div>
 

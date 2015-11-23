@@ -9,7 +9,7 @@ class RoundResponses(models.Model):
     subject = models.IntegerField(default=-1)  # id of the subject (image)
     user1_tags = models.TextField(default="", blank=True)
     user2_tags = models.TextField(default="", blank=True)
-    time = models.DecimalField(max_digits=10, decimal_places=2)
+    time = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
 
 class Game(models.Model):
