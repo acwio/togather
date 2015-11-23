@@ -8,7 +8,8 @@ class RoundResponses(models.Model):
     result = models.IntegerField(default=-1)  # 0 == loss, 1 == win
     user1_vote = models.IntegerField(default=-1) # 0 == loss, 1 == win
     user2_vote = models.IntegerField(default=-1) # 0 == loss, 1 == win
-    subject = models.IntegerField(default=-1)  # id of the subject (image)
+    user1_subject = models.IntegerField(default=-1)  # id of the subject (image)
+    user2_subject = models.IntegerField(default=-1)  # id of the subject (image)
     user1_tags = models.TextField(default="", blank=True)
     user2_tags = models.TextField(default="", blank=True)
     time = models.DecimalField(max_digits=10, decimal_places=2, null=True)

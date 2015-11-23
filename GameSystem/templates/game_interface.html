@@ -107,6 +107,35 @@
 
 </div><!-- /.modal -->
 
+
+<div class = "modal fade" id = "summary-modal" tabindex = "-1" role = "dialog"
+   aria-labelledby = "myModalLabel" aria-hidden = "true">
+
+   <div class = "modal-dialog">
+      <div class = "modal-content">
+
+         <div class = "modal-header">
+            <h4 class = "modal-title" id = "myModalLabel">
+               Round Summary
+            </h4>
+         </div>
+
+         <div id="round-summary-body" class = "modal-body" style="text-align: justify;">
+         </div>
+
+         <div class = "modal-footer">
+            <a href="/{{ game_type.id }}/"><button type = "button" class = "btn btn-default">
+               Next Round
+            </button>
+                </a>
+         </div>
+
+      </div><!-- /.modal-content -->
+   </div><!-- /.modal-dialog -->
+
+</div><!-- /.modal -->
+
+
 <input id="my-id" value="togather{{ user.id }}" style="display: none;">
 <input id="peer-id" value="{{ peer_id }}" style="display: none;">
 <input id="game_id" value="{{ game.id }}" style="display: none;">
@@ -133,11 +162,11 @@
 
     <center>
     <div id="voting-controls" class="btn-group" role="group" style="display: none;">
-        <button id="same-button" type="button" class="btn btn-default btn-success">
+        <button id="same-button" type="button" class="btn btn-default btn-success vote-buttons">
           Same Audio Clip
         </button>
 
-        <button id="diff-button" type="button" class="btn btn-default btn-danger">
+        <button id="diff-button" type="button" class="btn btn-default btn-danger vote-buttons">
           Different Audio Clip
         </button>
     </div>
@@ -210,16 +239,6 @@
         $('#tutorial-close').on('click', function(){
            /* set the local storage value */
             localStorage.setItem("Togather.tutorial", '1');
-        });
-
-        $("#same-button").on('click', function(){
-            /* show the waiting dialog */
-            waitingForVoteDialog.show();
-        });
-
-        $("#diff-button").on('click', function(){
-            /* show the waiting dialog */
-            waitingForVoteDialog.show();
         });
 
         wavesurfer.load('/static/{{ subject.url }}');

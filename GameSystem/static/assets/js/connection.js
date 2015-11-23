@@ -4,7 +4,8 @@
 
 // Peer Object
 $(document).ready(function() {
-
+var peer_vote = -1;
+var my_vote = -1;
 
     console.log("Specific PeerID: "+$("#my-id").val());
 var peer = new Peer($("#my-id").val(), {
@@ -62,12 +63,33 @@ function connect(c) {
 
     /* define how data is handled when received */
     c.on('data', function (data) {
-        $(".partner-label-container").append('<div class="user-label">'+data +'</div>');
+        if(data.indexOf("vote") == -1) {
+            $(".partner-label-container").append('<div class="user-label">' + data + '</div>');
 
-        /* can we show the voting buttons? */
-            if($('.partner-label-container').children().length > 4 && $('.label-container').children().length > 4){
+            /* can we show the voting buttons? */
+            if ($('.partner-label-container').children().length > 4 && $('.label-container').children().length > 4) {
                 $("#voting-controls").show();
             }
+        } else{
+            peer_vote = data.split(":")[1];
+
+            if(my_vote != -1) {
+                /* hide the dialog modal */
+                waitingForVoteDialog.hide();
+
+                /* show the summary modal */
+                $('#summary-modal').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+                if(peer_vote == my_vote){
+                    $("#round-summary-body").append("You both guessed the same.")
+                } else{
+                    $("#round-summary-body").append("You both guessed differently.")
+                }
+            }
+        }
     });
 
     /* define the behavior for when a user leaves randomly*/
@@ -142,6 +164,60 @@ function connect(c) {
         return cookieValue;
     }
     var csrftoken = getCookie('csrftoken');
+
+    $(".vote-buttons").on('click', function(e){
+        var vote;
+        if(e.currentTarget.id == "same-button"){
+            vote = 1;
+        } else{
+            vote = 0;
+        }
+
+        /* send the new label to the server */
+        $.ajax({
+            url : '/game/add_vote/',
+            type : 'POST',
+            data : {
+                'csrfmiddlewaretoken': csrftoken,
+                'game_id' : $("#game_id").val(),
+                'user_id' : $("#user_id").val(),
+                'round'   : $("#round").val(),
+                'vote'    : vote
+            },
+            dataType:'json',
+            success : function(data) {
+                if(data == 0){
+                    /* show the waiting dialog */
+                    waitingForVoteDialog.show();
+                    my_vote = vote;
+
+                    /* send the vote to the peer */
+                    /* send to the game partner */
+                    eachActiveConnection(function(c, $c) {
+                        c.send("vote:"+vote);
+                    });
+
+                } else {
+                    my_vote = vote;
+                    $('#summary-modal').modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+
+                    console.log("Peer_vote: "+peer_vote);
+                    console.log("My vote: "+my_vote);
+                    if(peer_vote == my_vote){
+                        $("#round-summary-body").append("You both guessed the same.")
+                    } else{
+                        $("#round-summary-body").append("You both guessed differently.")
+                    }
+
+                }
+            },
+            error : function(request,error){console.log(request);}
+        });
+
+    });
 
     // Send a label.
     $(".label-input").keyup(function(e) {

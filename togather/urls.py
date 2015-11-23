@@ -13,5 +13,6 @@ urlpatterns = patterns('',
     url(r'^login-register-user/', 'GameSystem.views.get_user', name='get_user'),
     url(r'^(?P<gametype_id>\d*)/', 'GameSystem.views.load_game_session', name='load_game_session'),
     url(r'^game/add_label/', 'GameSystem.views.add_label', name='add_label'),
+    url(r'^game/add_vote/', 'GameSystem.views.add_vote', name='add_vote'),
     url(r'^logout/', 'GameSystem.views.user_logout', name='user_logout'),
 )

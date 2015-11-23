@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect,HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from GameSystem.models import *
-from django.db.models import Q
+from django.db.models import Q, F
 import random
 
 
@@ -281,4 +281,11 @@ def add_vote(request):
     # save the round
     round.save()
 
-    return HttpResponse(200)
+    # return a variable for round completeness
+    round_complete = 0
+    if round.user2_vote != -1 and round.user1_vote != -1:
+        round_complete = 1
+        #game.round_index = F('round_index') +1
+        #game.save()
+
+    return HttpResponse(round_complete)
