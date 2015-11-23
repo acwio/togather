@@ -255,3 +255,30 @@ def add_label(request):
 
     print new_label + " " + game_id + " " + user_id
     return HttpResponse(200)
+
+
+def add_vote(request):
+    #extract values
+    vote = request.POST['vote']
+    game_id = request.POST['game_id']
+    user_id = request.POST['user_id']
+    round_index = request.POST['round']
+
+    # get the game by id
+    game = Game.objects.get(id=game_id)
+
+    # get the round at the relevant index
+    round = game.rounds.all()[int(round_index)-1]
+
+    # save the label to the correct set of labels
+    if int(user_id) == int(game.user1):
+        if round.user1_vote == -1:
+            round.user1_vote = vote
+    elif int(user_id) == int(game.user2):
+        if round.user2_vote == -1:
+            round.user2_vote = vote
+
+    # save the round
+    round.save()
+
+    return HttpResponse(200)
