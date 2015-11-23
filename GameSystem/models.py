@@ -6,6 +6,8 @@ class RoundResponses(models.Model):
     The fundamental building block of a game. Each game has 10(?) sessions.
     '''
     result = models.IntegerField(default=-1)  # 0 == loss, 1 == win
+    user1_vote = models.IntegerField(default=-1) # 0 == loss, 1 == win
+    user2_vote = models.IntegerField(default=-1) # 0 == loss, 1 == win
     subject = models.IntegerField(default=-1)  # id of the subject (image)
     user1_tags = models.TextField(default="", blank=True)
     user2_tags = models.TextField(default="", blank=True)
