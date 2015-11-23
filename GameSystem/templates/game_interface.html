@@ -97,7 +97,7 @@
          </div>
 
          <div class = "modal-footer">
-            <button type = "button" class = "btn btn-default" data-dismiss = "modal">
+            <button id="tutorial-close" type = "button" class = "btn btn-default" data-dismiss = "modal">
                Close
             </button>
          </div>
@@ -107,7 +107,8 @@
 
 </div><!-- /.modal -->
 
-
+<input id="my-id" value="togather{{ user.id }}" style="display: none;">
+<input id="peer-id" value="{{ peer_id }}" style="display: none;">
 <div id="papyri-game">
     <h3>Round {{ game.round_index }} of 10</h3>
     <hr/>
@@ -144,19 +145,20 @@
 
     /* force the waiting dialog to appear */
     waitingDialog.show();
-    setTimeout(function () {
-        /* hide the waiting Dialog */
-        waitingDialog.hide();
-
-        /* have they seen the tutorial before? */
-        if (localStorage.getItem("infiniteScrollEnabled") === null) {
-            /* show the tutorial modal */
-            $('#myModal').modal({
-                keyboard: false
-            });
-        }
-
-    }, 3000);
+{#    setTimeout(function () {#}
+{#        /* hide the waiting Dialog */#}
+{#        waitingDialog.hide();#}
+{##}
+{#        /* have they seen the tutorial before? */#}
+{#        if (localStorage.getItem("Togather.tutorial") === null) {#}
+{#            /* show the tutorial modal */#}
+{#            $('#myModal').modal({#}
+{#                backdrop: 'static',#}
+{#                keyboard: false#}
+{#            });#}
+{#        }#}
+{##}
+{#    }, 3000);#}
 
     /*  once the document is ready, initialize the audio clip visualizer */
     $(document).ready(function() {
@@ -174,16 +176,9 @@
             wavesurfer.pause();
         });
 
-        $(".label-input").keyup(function (e) {
-            if (e.keyCode == 13) {
-                $(".label-container").append('<div class="user-label">'+$('.label-input').val()+'</div>');
-
-
-                // Add Peer.js code.
-
-                /* reset the input field */
-                $('.label-input').val('');
-            }
+        $('#tutorial-close').on('click', function(){
+           /* set the local storage value */
+            localStorage.setItem("Togather.tutorial", '1');
         });
 
         wavesurfer.load('/static/{{ subject.url }}');

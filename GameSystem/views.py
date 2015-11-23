@@ -125,13 +125,14 @@ def load_game_session(request, gametype_id):
             new_player.save()
 
             # Serve the first subject to the user
-            subject_id = int(user1.split(",")[0])+159
+            subject_id = int(user1.split(",")[0])+195
             subject = Subject.objects.get(id=subject_id)
 
 
         else: # Player Queue isn't empty; Find the game with the player in the queue and add this user to the game.
             # get the first player in the queue
             existing_player = pq[0]
+            PlayerQueue.objects.delete(id=existing_player.id)
 
             # get the game the existing player belongs to
             game = Game.objects.filter(Q(user1=existing_player.user_id) | Q(user2=existing_player.user_id))[0]
@@ -141,7 +142,7 @@ def load_game_session(request, gametype_id):
             game.save()
 
             # serve the first subject in the user2_subjects to the user
-            subject_id = int(game.user2_subjects.split(",")[0])+159
+            subject_id = int(game.user2_subjects.split(",")[0])+195
             subject = Subject.objects.get(id=subject_id)
 
 
@@ -152,20 +153,27 @@ def load_game_session(request, gametype_id):
 
                 # check if they're user 1 or 2
         subject_set = ''
-        if game.user1 == request.user.id:
+        if int(game.user1) == int(request.user.id):
             subject_set = game.user1_subjects
-        elif game.user2 == request.user.id:
+        elif int(game.user2) == int(request.user.id):
             subject_set = game.user2_subjects
 
         # get the subject at the round index.
         round_index = int(game.round_index)
-        subject_id = int(subject_set.split(",")[round_index])+159
-        print subject_id
+        subject_id = int(subject_set.split(",")[round_index])+195
         subject = Subject.objects.get(id=subject_id)
 
+    # determine if request.user is user1 or user2
+    peer_id =''
+    if int(game.user1) == int(request.user.id):
+        peer_id = 'togather'+str(game.user2)
+    elif int(game.user2) == int(request.user.id):
+        peer_id = 'togather'+str(game.user1)
+
+    print peer_id
 
     # TODO: (in the form submit view)
     # 1. Increment the game's index
     # 2. Save the tags.
 
-    return render(request, 'game_interface.html', {'game_type': game_type, 'game': game, 'subject': subject})
+    return render(request, 'game_interface.html', {'game_type': game_type, 'game': game, 'peer_id': peer_id ,'subject': subject})

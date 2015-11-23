@@ -3,9 +3,11 @@
  */
 
 // Peer Object
-var peer = new Peer({
+$(document).ready(function() {
+    console.log("Specific PeerID: "+$("#my-id").val());
+var peer = new Peer($("#my-id").val(), {
     // API Key -- sign up for one with PeerJS
-    key: '',
+    key: 'x7fwx2kavpy6tj4i',
     // Debug level
     debug: 3,
     // Logging function
@@ -20,6 +22,8 @@ var connectedPeers = {};
 
 // When connection to the PeerServer is established.
 peer.on('open', function(id){
+    console.log("PeerID: "+peer.id);
+
     // We can print some connection successful message or whatever.
 });
 
@@ -30,46 +34,41 @@ peer.on('connection', connect);
 // Log error
 peer.on('error', function(err) {
   console.log(err);
-})
+});
 
 /**
  * Handle a connection object.
  * @param c
  */
 function connect(c) {
-    var chatbox = $('<div></div>').addClass('connection').addClass('active').attr('id', c.peer);
-    var header = $('<h1></h1>').html('Chat with <strong>' + c.peer + '</strong>');
-    var messages = $('<div><em>Peer connected.</em></div>').addClass('messages');
-    chatbox.append(header);
-    chatbox.append(messages);
+    /* hide the waiting Dialog */
+    waitingDialog.hide();
 
-    // Select connection handler.
-    chatbox.on('click', function () {
-        if ($(this).attr('class').indexOf('active') === -1) {
-            $(this).addClass('active');
-        } else {
-            $(this).removeClass('active');
-        }
-    });
-    $('.filler').hide();
-    $('#connections').append(chatbox);
+    /* have they seen the tutorial before? */
+    if (localStorage.getItem("Togather.tutorial") === null) {
+        /* show the tutorial modal */
+        $('#myModal').modal({
+            backdrop: 'static',
+            keyboard: false
+        });
+    }
+
+    /* define how data is handled when received */
     c.on('data', function (data) {
-        messages.append('<div><span class="peer">' + c.peer + '</span>: ' + data +
-            '</div>');
+        $(".partner-label-container").append('<div class="user-label">'+data +'</div>');
     });
+
+    /* define the behavior for when a user leaves randomly*/
     c.on('close', function () {
-        alert(c.peer + ' has left the chat.');
-        chatbox.remove();
-        if ($('.connection').length === 0) {
-            $('.filler').show();
-        }
+        /* show the modal */
+        waitingDialog.show();
+
+        /* delete the connection */
         delete connectedPeers[c.peer];
     });
     connectedPeers[c.peer] = 1;
 
 }
-
-$(document).ready(function() {
 
 
     function doNothing(e){
@@ -80,14 +79,15 @@ $(document).ready(function() {
     // Connect to a peer
     // Some logic will have to be here to determine
     // what peer to connect to. Will add this later.
-    $('#connect').click(function() {
-        var requestedPeer;
+    //$('#connect').click(function() {
+        var requestedPeer = $("#peer-id").val();
 
         if(!connectedPeers[requestedPeer]) {
 
             // Create a connection
             // We can add metadata as a second argument
             // Where the second argument is a dict.
+            console.log("Attempting to connect to: "+ requestedPeer);
             var c = peer.connect(requestedPeer);
 
             // When connection to Peer Server is established.
@@ -105,7 +105,7 @@ $(document).ready(function() {
             });
         }
         connectedPeers[requestedPeer] = 1;
-    });
+   // });
 
     // Close a connection.
     $('#close').click(function() {
@@ -115,21 +115,25 @@ $(document).ready(function() {
     });
 
     // Send a label.
-    $('#send').submit(function(e) {
-        // Have to add logic here.
-        // This is where the c.send
-        // comes into play. The message
-        // can be whatever we want.
-        e.preventDefault();
-        //For each active connection, send the message.
-        var msg = $('#text').val();
-        eachActiveConnection(function(c, $c) {
-            c.send(msg);
-            $c.find('.messages').append('<div><span class="you">You: </span>' + msg
-                + '</div>');
-        });
-        $('text').val('');
-        $('text').focus();
+    $(".label-input").keyup(function(e) {
+        /* verify enter key */
+        if (e.keyCode == 13) {
+            var label = $('.label-input').val();
+
+            /* restrict null / invalid input */
+            if(label == "" || label == null) return;
+
+            /* send to the game partner */
+            eachActiveConnection(function(c, $c) {
+                c.send(label);
+            });
+
+            /* append the html */
+            $(".label-container").append('<div class="user-label">'+label+'</div>');
+
+            /* reset the input field */
+            $('.label-input').val('');
+        }
     });
 
     /**
@@ -137,10 +141,8 @@ $(document).ready(function() {
      * @param fn
      */
     function eachActiveConnection(fn) {
-        var actives = $('.active');
         var checkedIds = {};
-        actives.each(function() {
-            var peerId = $(this).attr('id');
+            var peerId = $("#peer-id").val();
             if (!checkedIds[peerId]) {
                 var conns = peer.connections[peerId];
                 for (var i = 0, ii = conns.length; i < ii; i += 1) {
@@ -149,9 +151,7 @@ $(document).ready(function() {
                 }
             }
             checkedIds[peerId] = 1;
-        });
     }
-
 });
 
 
