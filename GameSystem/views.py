@@ -166,7 +166,7 @@ def load_game_session(request, gametype_id):
 
     # get the round
     round = ''
-    if int(game.rounds.count()) < int(round_index):
+    if int(game.rounds.count()) < int(game.round_index):
         # create the game round
         round = RoundResponses.objects.create()
         game.rounds.add(round)
