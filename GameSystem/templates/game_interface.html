@@ -212,6 +212,16 @@
             localStorage.setItem("Togather.tutorial", '1');
         });
 
+        $("#same-button").on('click', function(){
+            /* show the waiting dialog */
+            waitingForVoteDialog.show();
+        });
+
+        $("#diff-button").on('click', function(){
+            /* show the waiting dialog */
+            waitingForVoteDialog.show();
+        });
+
         wavesurfer.load('/static/{{ subject.url }}');
     });
 </script>
