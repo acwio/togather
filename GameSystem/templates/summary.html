@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+ #game-div {
+    width: 80%;
+    min-height: 400px;
+    margin: 0 auto;
+    margin-top: 25px
+ }
+
+ .summary-table {
+     margin: 0 auto;
+     border: solid 1px;
+     display: block;
+     width: 401px;
+ }
+
+ th {
+     text-decoration:  bold;
+     text-align: center;
+     width: 100px;
+ }
+
+ td {
+     text-align: center;
+     width: 100px;
+     border: solid 1px lightgray;
+ }
+
+ .correct {
+     background-color: palegreen;
+ }
+
+ .incorrect {
+     background-color: indianred;
+ }
+
+</style>
+
+<div id="game-div">
+    <h2>Game Summary</h2>
+    <hr />
+    Congrats! In this game, you and your partner achieve a score of <strong>{{ game.score }}</strong>!
+
+    <hr/>
+
+    <div class="summary-table">
+    <table>
+    <tr><th style="width: 60px;">Round</th><th>{{ user1 }}'s Vote</th><th>{{ user2 }}'s Vote</th><th>Correct Answer</th></tr>
+    {% for round in game.rounds.all %}
+        <tr><td>{{ forloop.counter }}</td>{% if round.user1_vote == 0 %}<td>Same</td> {% else %}<td>Diff.</td> {% endif %}{% if round.user1_vote == 0 %}<td>Same</td> {% else %}<td>Diff.</td> {% endif %}{% if round.result == 0 %}<td class="incorrect"></td> {% else %}<td class="correct"></td> {% endif %}</tr>
+    {%  endfor %}
+    </table>
+    </div>
+</div>
+
+{% endblock %}
