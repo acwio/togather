@@ -16,7 +16,7 @@ $(document).ready(function() {
     /*  setup the Peer object */
     var peer = new Peer($("#my-id").val(), {
         // API Key -- sign up for one with PeerJS
-        key: 'bkn1mlwipegbvs4i',//key: 'x7fwx2kavpy6tj4i',
+        key: 'okb9u0neilxiggb9',//key: 'x7fwx2kavpy6tj4i',
         // Debug level
         debug: 3,
         // Logging function
@@ -316,13 +316,17 @@ $(document).ready(function() {
     /**
      * Define an event-handler for the "Enter" key when giving a label.
      */
+    var sent_labels = [];
     $("#label-supplier").keyup(function(e) {
         /* verify enter key */
         if (e.keyCode == 13) {
             var label = $('.label-input').val();
 
             /* restrict null / invalid input */
-            if(label == "" || label == null) return;
+            if(label == "" || label == null){   return; }
+
+            /* restrict duplicate label */
+            if(sent_labels.indexOf(label) != -1){   return; }
 
             /* send the new label to the server */
             $.ajax({
@@ -346,6 +350,8 @@ $(document).ready(function() {
                 console.log(c);
                 c.send(label);
             });
+
+            sent_labels.push(label);
 
             /* append the html */
             $(".label-container").append('<div class="user-label">'+label+'</div>');
