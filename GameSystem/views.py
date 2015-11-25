@@ -308,13 +308,13 @@ def add_vote(request):
             # mark the round as won
             round_win = 1
             round.result = 1
+            game.score = F('score') + 10
         else:
             round.result = 0
         round.save()
 
         # increment the round and save the game
         game.round_index = F('round_index') + 1
-        game.score = F('score') + 10
 
         # check if game is complete
         if game.round_index == 11:
