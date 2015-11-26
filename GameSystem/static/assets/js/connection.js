@@ -10,7 +10,6 @@ $(document).ready(function() {
     /* setup default variables for the voting scheme */
     var peer_vote = -1;
     var my_vote = -1;
-    var correct_answer = -1;
     var subjectCommunicated = false;
 
     /*  setup the Peer object */
@@ -89,6 +88,8 @@ $(document).ready(function() {
         /* define how data is handled when received */
         c.on('data', function (data) {
             console.log("data recvd: "+data);
+
+            /*  is the data a label? */
             if(data.indexOf("vote:") == -1 && data.indexOf("subject:") == -1) {
                 /* check that the label hasn't been given already */
                 if(labels.indexOf(data) == -1) {
@@ -106,15 +107,6 @@ $(document).ready(function() {
                 var peer_subject = data.split(":")[2];
 
                 if(round_index == $("#round").val()) {  /* verify we recieved data from the right round */
-
-                    if (peer_subject == $("#subject_id").val()) {
-                        console.log("My Subject: " + $("#subject_id").val());
-                        console.log("My Peer's Subject: " + peer_subject);
-                        correct_answer = 1;
-                    } else {
-                        correct_answer = 0;
-                    }
-
                     /* send the subject_id to the game partner */
                     if (!subjectCommunicated) {
                         eachActiveConnection(function (c, $c) {
@@ -128,7 +120,7 @@ $(document).ready(function() {
                 }
 
 
-            } else{
+            } else{ /*  vote is being recieved */
                 peer_vote = data.split(":")[1];
                 console.log("Peer_Vote: "+peer_vote);
                 console.log("My Vote: "+my_vote);
@@ -143,7 +135,7 @@ $(document).ready(function() {
                         keyboard: false
                     });
 
-                    if(peer_vote == correct_answer && my_vote == correct_answer){
+                    if(parseInt(peer_vote) == parseInt(correct_answer) && parseInt(my_vote) == parseInt(correct_answer)){
                         $("#round-summary-body").append("You both guessed correctly! You've earned <strong>10 points</strong>!")
                     } else{
                         $("#round-summary-body").append("One (or both) of you guessed incorrectly. Don't worry! You'll get it next time.")
