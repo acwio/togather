@@ -58,10 +58,9 @@ def get_user(request):
 
 def load_game_session(request, gametype_id):
     '''
-    Should be called once two users have been connected into a game.
-    Serves the game UI to the user.
-    UI is automatically served with a loading modal. Connection of another user is handled by JavaScript.
-    :param request:
+    Serves the Game UI to users. Automatically assigns a user to a game based on players waiting in the player queue.
+    :param request: the HTTP request object
+    :param gametype_id: ID of the type of game (e.g. Papyrology, Music, etc)
     :return:
     '''
 
@@ -200,14 +199,14 @@ def load_game_session(request, gametype_id):
         my_labels = str(round.user2_tags).split(',')
         peer_labels = str(round.user1_tags).split(',')
 
-    print peer_id
-
-    # TODO: (in the form submit view)
-    # 1. Increment the game's index
-    # 2. Save the tags.
+    # determine if the two users are looking at the same content
+    correct_answer = 0
+    if str(game.user1_subjects).split(',')[int(game.round_index)-1] == str(game.user2_subjects).split(',')[int(game.round_index)-1]:
+        correct_answer = 1
 
     return render(request, 'game_interface.html', {'game_type': game_type, 'game': game, 'my_labels': my_labels, 'peer_labels' : peer_labels,
-                                                   'peer_id': peer_id,'subject': subject, 'subject_id': subject_id, 'final_round': final_round})
+                                                   'peer_id': peer_id,'subject': subject, 'subject_id': subject_id, 'final_round': final_round,
+                                                   'correct_answer': correct_answer})
 
 
 def add_label(request):
