@@ -314,7 +314,12 @@ def add_vote(request):
         round.save()
 
         # increment the round and save the game
+        # NOTE: It seems like the F() function doesn't evaluate
+        # until saved to the db. Hence the extra save + get calls
         game.round_index = F('round_index') + 1
+        game.save()
+
+        game = Game.objects.get(id=game_id)
 
         # check if game is complete
         if game.round_index == 11:
