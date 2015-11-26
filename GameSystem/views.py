@@ -37,12 +37,14 @@ def get_user(request):
     :param request:
     :return:
     '''
+    new_user = 0
     if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
 
         # if the username doesnt exist already, make it
         if not User.objects.filter(username=username).exists():
+            new_user = 1
             user = User.objects.create_user(username=username,
                                             email='burr@ismyBFF.com',
                                             password=password)
@@ -52,9 +54,20 @@ def get_user(request):
                             password=request.POST['password'])
         login(request, user)
 
-    # redirect to the homepage for both types of requests
-    return HttpResponseRedirect('/')
+        if(new_user):
+            return render(request,'question.html',{})
+        else:
+            # redirect to the homepage for both types of requests
+            return HttpResponseRedirect('/')
 
+def answer_question(request):
+    if request.method == "POST":
+        expert = int(request.POST["expert"])
+
+    user=User.objects.get(id=request.user.id)
+    player=Player.objects.create(user=user,expert=expert)
+
+    return HttpResponseRedirect('/')
 
 def load_game_session(request, gametype_id):
     '''

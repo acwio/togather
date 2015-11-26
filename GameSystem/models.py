@@ -1,5 +1,9 @@
 from django.db import models
+from django.contrib.auth.models import User
 
+class Player(models.Model):
+    user = models.OneToOneField(User)
+    expert = models.IntegerField(default=0) # 0 == non-expert, 1 == expert
 
 class RoundResponses(models.Model):
     '''
