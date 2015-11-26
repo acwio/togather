@@ -37,11 +37,11 @@ def get_user(request):
     :param request:
     :return:
     '''
-    new_user = 0
     if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
 
+        new_user = 0
         # if the username doesnt exist already, make it
         if not User.objects.filter(username=username).exists():
             new_user = 1
