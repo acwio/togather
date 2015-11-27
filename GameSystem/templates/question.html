@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+#login_form {
+    width: 150px;
+    margin: 0 auto;
+    margin-top: 15px;
+}
+</style>
+
+<div id="login_form">
+    <form method="POST" action="/question/">
+        {% csrf_token %}
+          Are you a musician?<br>
+        <input type="radio" name="expert" value="1">Yes
+        <br>
+        <input type="radio" name="expert" value="0" checked>No
+        <br>
+        <br>
+            <input type="submit" value="Submit">
+    </form>
+</div>
+
+{% endblock %}
