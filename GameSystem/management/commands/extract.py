@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
             print " -- Game "+str(game.id)+" --"
             for round in game.rounds.all():
-                print str(user1.username)+','+str(user2.username)+','+str(round.user1_subject)+","+str(round.user2_subject)+","+str(round.user1_tags)+","+str(round.user2_tags)
+                print str(user1.username)+','+str(user2.username)+','+str(round.user1_subject)+","+str(round.user2_subject)+",("+str(round.user1_tags)+"),("+str(round.user2_tags)+")"
             print
 
         print ' :: Data successfully dumped :: (lol)'
