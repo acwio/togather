@@ -191,7 +191,7 @@ def load_game_session(request, gametype_id):
         game.rounds.add(round)
     else:
         # get the round
-        round = game.rounds.all()[int(game.round_index)-1]
+        round = game.rounds.all().order_by('created')[int(game.round_index)-1]
 
     # is this the final subject for the round?
     final_round = 0
@@ -250,7 +250,7 @@ def add_label(request):
 
     else:
         # get the round at the relevant index
-        round = game.rounds.all()[int(round_index)-1]
+        round = game.rounds.all().order_by('created')[int(round_index)-1]
 
         # save the label to the correct set of labels
         if int(user_id) == int(game.user1):
@@ -290,7 +290,7 @@ def add_vote(request):
     game = Game.objects.get(id=game_id)
 
     # get the round at the relevant index
-    round = game.rounds.all()[int(round_index)-1]
+    round = game.rounds.all().order_by('created')[int(round_index)-1]
 
     # save the label to the correct set of labels
     if int(user_id) == int(game.user1):

@@ -125,7 +125,7 @@ $(document).ready(function() {
                 console.log("Peer_Vote: "+peer_vote);
                 console.log("My Vote: "+my_vote);
 
-                if(my_vote != -1) {
+                if(parseInt(my_vote) != -1) {
                     /* hide the dialog modal */
                     waitingForVoteDialog.hide();
 

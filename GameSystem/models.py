@@ -17,6 +17,7 @@ class RoundResponses(models.Model):
     user1_tags = models.TextField(default="", blank=True)
     user2_tags = models.TextField(default="", blank=True)
     time = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    created = models.DateTimeField(auto_now_add=True)
 
 
 class Game(models.Model):
