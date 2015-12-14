@@ -206,7 +206,7 @@ $(document).ready(function() {
                 // display something on the screen.
                 // We can do stuff for each type of
                 // error if needed.
-                alert(err);
+                console.log(err);
             });
         }
         connectedPeers[requestedPeer] = 1;
