@@ -258,7 +258,7 @@ $(document).ready(function() {
             vote = 0;
         }
 
-        /* send the new label to the server */
+        /* send the vote to the server */
         $.ajax({
             url : '/game/add_vote/',
             type : 'POST',
