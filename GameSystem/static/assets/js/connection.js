@@ -251,6 +251,9 @@ $(document).ready(function() {
      * Define an event-handler for same/diff voting buttons.
      */
     $(".vote-buttons").on('click', function(e){
+        /* show the waiting dialog */
+        waitingForVoteDialog.show();
+
         var vote;
         if(e.currentTarget.id == "same-button"){
             vote = 1;
@@ -277,12 +280,10 @@ $(document).ready(function() {
                 });
 
                 if(data == 0){
-                    /* show the waiting dialog */
-                    waitingForVoteDialog.show();
                     my_vote = vote;
-
                 } else {
-
+                    /* show the waiting dialog */
+                    waitingForVoteDialog.hide();
                     my_vote = vote;
                     $('#summary-modal').modal({
                         backdrop: 'static',
