@@ -188,6 +188,11 @@ def load_game_session(request, gametype_id):
         subject_id = int(subject_set.split(",")[int(round_index)-1])
         subject = Subject.objects.get(explicit_id=subject_id)
 
+        # do we need to add a new round object?
+        if round_index > int(game.rounds.count()):
+            round = RoundResponses.objects.create()
+            game.rounds.add(round)
+
 
     # get the round
     round = game.rounds.all().order_by('created')[int(game.round_index)-1]
@@ -327,7 +332,7 @@ def add_vote(request):
         # increment the round and save the game
         # NOTE: It seems like the F() function doesn't evaluate
         # until saved to the db. Hence the extra save + get calls
-        game.round_index = F('round_index') + 1
+        game.round_index = int(game.rounds.count()) + 1
         game.save()
 
         # check if game is complete
