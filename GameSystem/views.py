@@ -76,6 +76,8 @@ def load_game_session(request, gametype_id):
     :param gametype_id: ID of the type of game (e.g. Papyrology, Music, etc)
     :return:
     '''
+    round = ''
+
 
     # get the available game with the id
     game_type = AvailableGames.objects.get(id=gametype_id)
@@ -139,6 +141,9 @@ def load_game_session(request, gametype_id):
                                            user2_subjects=user2)
             game.save()
 
+            round = RoundResponses.objects.create()
+            game.rounds.add(round)
+
             # Add the user to the PlayerQueue
             new_player = PlayerQueue.objects.create(user_id=request.user.id, api_key="")
             new_player.save()
@@ -183,15 +188,9 @@ def load_game_session(request, gametype_id):
         subject_id = int(subject_set.split(",")[int(round_index)-1])
         subject = Subject.objects.get(explicit_id=subject_id)
 
+
     # get the round
-    round = ''
-    if int(game.rounds.count()) < int(game.round_index):
-        # create the game round
-        round = RoundResponses.objects.create()
-        game.rounds.add(round)
-    else:
-        # get the round
-        round = game.rounds.all().order_by('created')[int(game.round_index)-1]
+    round = game.rounds.all().order_by('created')[int(game.round_index)-1]
 
     # is this the final subject for the round?
     final_round = 0
