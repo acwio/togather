@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
         for game in games:
             user1 = User.objects.get(id=game.user1)
-            user2 = User.objects.get(id=game.user1)
+            user2 = User.objects.get(id=game.user2)
 
             print " -- Game "+str(game.id)+" --"
             for round in game.rounds.all():
