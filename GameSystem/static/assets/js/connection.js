@@ -254,6 +254,12 @@ $(document).ready(function() {
         /* show the waiting dialog */
         waitingForVoteDialog.show();
 
+        console.log("VOTE BUTTON CLICKED:")
+        console.log("Sending: ");
+        console.log("GameID: "+$("#game_id").val());
+        console.log('UserID: ' + $("#user_id").val());
+        console.log('Round: '+ $("#round").val());
+
         var vote;
         if(e.currentTarget.id == "same-button"){
             vote = 1;
