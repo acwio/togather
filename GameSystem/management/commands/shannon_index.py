@@ -94,21 +94,21 @@ class Command(BaseCommand):
     print "SHAN EXP:"
     print
     for i in expert_word_count.keys():
-        print i+" -> "+ expert_word_count[i]
+        print str(i)+" -> "+str(expert_word_count[i])
     print
     print str(expert_word_count.values())
     print
     print "SHAN NON:"
     print
     for i in nonexpert_word_count.keys():
-        print i+" -> "+ nonexpert_word_count[i]
+        print i+" -> "+ str(nonexpert_word_count[i])
     print
     print str(nonexpert_word_count.values())
     print
     print "SHAN MIXED:"
     print
     for i in mixed_word_count.keys():
-        print i+" -> "+ mixed_word_count[i]
+        print i+" -> "+ str(mixed_word_count[i])
     print
     print str(mixed_word_count.values())
 
