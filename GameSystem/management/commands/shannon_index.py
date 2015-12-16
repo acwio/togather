@@ -112,5 +112,18 @@ class Command(BaseCommand):
     print
     print str(mixed_word_count.values())
 
+    print "AVG"
+    print "Expert:"
+    exp = sum(len(word) for word in expert_word_count.keys())/len(expert_word_count.keys())
+    print exp
+
+    print "Mix:"
+    mix = sum(len(word) for word in mixed_word_count.keys())/len(mixed_word_count.keys())
+    print mix
+
+    print "Non:"
+    non = sum(len(word) for word in nonexpert_word_count.keys())/len(nonexpert_word_count.keys())
+    print non
+
     def handle(self, *args, **options):
         self._shannon_index()
